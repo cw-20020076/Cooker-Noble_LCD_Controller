@@ -1,5 +1,5 @@
 Application/User/generated/LanguageGb.o: \
- C:/yk/03.demo/GUI_Demo/TouchGFX/generated/texts/src/LanguageGb.cpp \
+ C:/Users/123/Desktop/Cooker_GUI/TouchGFX/generated/texts/src/LanguageGb.cpp \
  ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Unicode.hpp \
  ../../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Types.hpp \
  ../../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Config.hpp
