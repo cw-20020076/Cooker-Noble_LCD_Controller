@@ -1,5 +1,5 @@
 Application/User/generated/GeneratedFont.o: \
- C:/yk/03.demo/GUI_Demo/TouchGFX/generated/fonts/src/GeneratedFont.cpp \
+ C:/Users/123/Desktop/Cooker_GUI/TouchGFX/generated/fonts/src/GeneratedFont.cpp \
  ../../TouchGFX/generated/fonts/include/fonts/GeneratedFont.hpp \
  ../../Middlewares/ST/touchgfx/framework/include/touchgfx/ConstFont.hpp \
  ../../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/Types.hpp \
