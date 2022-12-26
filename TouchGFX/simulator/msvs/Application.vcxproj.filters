@@ -172,24 +172,6 @@
     <Filter Include="Header Files\generated\simulator\include\simulator\video">
       <UniqueIdentifier>D6ABE3E1-7077-03DC-F88C-0AF858AC2594</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\generated\gui_generated\containers">
-      <UniqueIdentifier>EF1A8A3E-F0C3-F0E8-6CD4-7B5E6FF8443D</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\generated\gui_generated\containers">
-      <UniqueIdentifier>EAD1F2B6-A354-67F7-D1EF-946E1BEF2645</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\graph_screen">
-      <UniqueIdentifier>9E815E7C-E541-29F7-C512-BEC633C75F93</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\gui\graph_screen">
-      <UniqueIdentifier>B5603310-55C5-2297-8328-46719864EC03</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\graph_screen\graph_widget">
-      <UniqueIdentifier>772F3B7C-EBD4-670B-B142-1FBF2462EA3C</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\gui\graph_screen\graph_widget">
-      <UniqueIdentifier>79167960-49B9-F73D-A365-CA574FE7C23A</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\gui\main_screen">
       <UniqueIdentifier>9F8B8A3D-3FAC-218F-D1B5-2FCB83F4E1EE</UniqueIdentifier>
     </Filter>
