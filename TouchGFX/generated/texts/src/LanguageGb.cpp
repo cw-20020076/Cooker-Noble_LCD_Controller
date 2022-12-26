@@ -7,10 +7,9 @@
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE;
 
-// Remap all strings
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE = {
-    0, // T_ENTEREDTEXT: "<>"
-    7, // T_NUMMODE: "ABC"
-    2  // T_ALPHAMODE: "123 "
+    0, // T_EnteredText
+    7, // T_NumMode
+    2 // T_AlphaMode
 };

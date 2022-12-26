@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -18,37 +18,12 @@
 #ifndef TOUCHGFX_TEXTAREAWITHWILDCARD_HPP
 #define TOUCHGFX_TEXTAREAWITHWILDCARD_HPP
 
-#include <touchgfx/Unicode.hpp>
 #include <touchgfx/hal/Types.hpp>
+#include <touchgfx/Unicode.hpp>
 #include <touchgfx/widgets/TextArea.hpp>
 
 namespace touchgfx
 {
-/**
- * Base class for TextArea with one or two wildcards.
- *
- * @see TextAreaWithOneWildcard, TextAreaWithTwoWildcards
- *
- */
-class TextAreaWithWildcardBase : public TextArea
-{
-public:
-    TextAreaWithWildcardBase()
-        : TextArea()
-    {
-    }
-
-    virtual void draw(const Rect& area) const;
-
-    virtual void invalidateContent() const;
-
-protected:
-    virtual TextArea::BoundingArea calculateBoundingArea() const
-    {
-        return TextArea::BoundingArea();
-    }
-};
-
 /**
  * TextArea with one wildcard. The format string (i.e. the TypedText set in setTypedText()) is
  * expected to contain a wildcard &lt;placeholder> from the text.
@@ -56,32 +31,20 @@ protected:
  * @note the text converter tool converts the <...> to ascii value 2 which is then being
  *       replaced by a wildcard text.
  */
-class TextAreaWithOneWildcard : public TextAreaWithWildcardBase
+class TextAreaWithOneWildcard : public TextArea
 {
 public:
     TextAreaWithOneWildcard()
-        : TextAreaWithWildcardBase(), wc1(0)
+        : TextArea(), wildcard(0)
     {
     }
 
-    /**
-     * Sets the wildcard used in the TypedText where &lt;placeholder> is placed. Wildcard
-     * string must be a null-terminated UnicodeChar array.
-     *
-     * @param  value A pointer to the UnicodeChar to set the wildcard to.
-     *
-     * @note The pointer passed is saved, and must be accessible whenever TextAreaWithOneWildcard
-     *       may need it.
-     */
-    void setWildcard1(const Unicode::UnicodeChar* value)
+    virtual int16_t getTextHeight()
     {
-        wc1 = value;
+        return typedText.hasValidId() ? calculateTextHeight(typedText.getText(), wildcard, 0) : 0;
     }
 
-    virtual const Unicode::UnicodeChar* getWildcard1() const
-    {
-        return wc1;
-    }
+    virtual void draw(const Rect& area) const;
 
     /**
      * Sets the wildcard used in the TypedText where &lt;placeholder> is placed. Wildcard
@@ -94,7 +57,7 @@ public:
      */
     void setWildcard(const Unicode::UnicodeChar* value)
     {
-        setWildcard1(value);
+        wildcard = value;
     }
 
     /**
@@ -104,11 +67,16 @@ public:
      */
     const Unicode::UnicodeChar* getWildcard() const
     {
-        return getWildcard1();
+        return wildcard;
+    }
+
+    virtual uint16_t getTextWidth() const
+    {
+        return typedText.hasValidId() ? typedText.getFont()->getStringWidth(typedText.getTextDirection(), typedText.getText(), wildcard, 0) : 0;
     }
 
 protected:
-    const Unicode::UnicodeChar* wc1; ///< Pointer to the wildcard string. Must be null-terminated.
+    const Unicode::UnicodeChar* wildcard; ///< Pointer to the wildcard string. Must be null-terminated.
 };
 
 /**
@@ -119,13 +87,20 @@ protected:
  * @note the text converter tool converts the <...> to ascii value 2 which is what is
  *       being replaced by a wildcard text.
  */
-class TextAreaWithTwoWildcards : public TextAreaWithWildcardBase
+class TextAreaWithTwoWildcards : public TextArea
 {
 public:
     TextAreaWithTwoWildcards()
-        : TextAreaWithWildcardBase(), wc1(0), wc2(0)
+        : TextArea(), wc1(0), wc2(0)
     {
     }
+
+    virtual int16_t getTextHeight()
+    {
+        return typedText.hasValidId() ? calculateTextHeight(typedText.getText(), wc1, wc2) : 0;
+    }
+
+    virtual void draw(const Rect& area) const;
 
     /**
      * Sets the wildcard used in the TypedText where first &lt;placeholder> is placed.
@@ -141,7 +116,12 @@ public:
         wc1 = value;
     }
 
-    virtual const Unicode::UnicodeChar* getWildcard1() const
+    /**
+     * Gets the first wildcard used in the TypedText as previously set using setWildcard1().
+     *
+     * @return The first wildcard used in the text.
+     */
+    const Unicode::UnicodeChar* getWildcard1() const
     {
         return wc1;
     }
@@ -160,9 +140,19 @@ public:
         wc2 = value;
     }
 
-    virtual const Unicode::UnicodeChar* getWildcard2() const
+    /**
+     * Gets the second wildcard used in the TypedText as previously set using setWildcard1().
+     *
+     * @return The second wildcard used in the text.
+     */
+    const Unicode::UnicodeChar* getWildcard2() const
     {
         return wc2;
+    }
+
+    virtual uint16_t getTextWidth() const
+    {
+        return typedText.hasValidId() ? typedText.getFont()->getStringWidth(typedText.getTextDirection(), typedText.getText(), wc1, wc2) : 0;
     }
 
 protected:

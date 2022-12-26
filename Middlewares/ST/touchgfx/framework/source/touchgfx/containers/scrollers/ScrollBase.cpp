@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -10,10 +10,16 @@
 *
 *******************************************************************************/
 
+#include <touchgfx/hal/Types.hpp>
 #include <touchgfx/Application.hpp>
+#include <touchgfx/Callback.hpp>
 #include <touchgfx/Drawable.hpp>
+#include <touchgfx/EasingEquations.hpp>
 #include <touchgfx/Utils.hpp>
+#include <touchgfx/containers/Container.hpp>
 #include <touchgfx/containers/scrollers/ScrollBase.hpp>
+#include <touchgfx/events/DragEvent.hpp>
+#include <touchgfx/events/GestureEvent.hpp>
 
 namespace touchgfx
 {
@@ -28,7 +34,6 @@ ScrollBase::ScrollBase()
       maxSwipeItems(0),
       easingEquation(&EasingEquations::backEaseOut),
       defaultAnimationSteps(30),
-      overshootPercentage(75),
       itemSelectedCallback(0),
       itemLockedInCallback(0),
       animationEndedCallback(0),
@@ -214,7 +219,7 @@ void ScrollBase::handleDragEvent(const DragEvent& event)
     stopAnimation();
     currentAnimationState = ANIMATING_DRAG;
     int32_t newOffset = getOffset() + (getHorizontal() ? event.getDeltaX() : event.getDeltaY()) * dragAcceleration / 10;
-    newOffset = keepOffsetInsideLimits(newOffset, muldiv(itemSize, overshootPercentage, 100));
+    newOffset = keepOffsetInsideLimits(newOffset, itemSize * 3 / 4);
     setOffset(newOffset);
 }
 
@@ -316,8 +321,7 @@ void ScrollBase::animateToPosition(int32_t position, int16_t steps)
     {
         steps = defaultAnimationSteps;
     }
-    const int32_t distance = abs(position - currentPosition);
-    steps = MIN(steps, distance);
+    steps = MIN(steps, abs(position - currentPosition));
     if (steps < 1)
     {
         setOffset(position);

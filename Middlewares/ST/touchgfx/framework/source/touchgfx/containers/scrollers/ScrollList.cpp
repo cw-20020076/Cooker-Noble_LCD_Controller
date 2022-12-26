@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -10,8 +10,13 @@
 *
 *******************************************************************************/
 
+#include <touchgfx/hal/Types.hpp>
+#include <touchgfx/Callback.hpp>
 #include <touchgfx/Utils.hpp>
+#include <touchgfx/containers/scrollers/DrawableList.hpp>
+#include <touchgfx/containers/scrollers/ScrollBase.hpp>
 #include <touchgfx/containers/scrollers/ScrollList.hpp>
+#include <touchgfx/events/ClickEvent.hpp>
 
 namespace touchgfx
 {
@@ -21,30 +26,6 @@ ScrollList::ScrollList()
       snapping(false),
       windowSize(1)
 {
-}
-
-void ScrollList::setWidth(int16_t width)
-{
-    ScrollBase::setWidth(width);
-    if (getHorizontal())
-    {
-        setWindowSize(windowSize);
-    }
-}
-
-void ScrollList::setHeight(int16_t height)
-{
-    ScrollBase::setHeight(height);
-    if (!getHorizontal())
-    {
-        setWindowSize(windowSize);
-    }
-}
-
-void ScrollList::setDrawableSize(int16_t drawableSize, int16_t drawableMargin)
-{
-    ScrollBase::setDrawableSize(drawableSize, drawableMargin);
-    setWindowSize(windowSize);
 }
 
 void ScrollList::setDrawables(DrawableListItemsInterface& drawableListItems, GenericCallback<DrawableListItemsInterface*, int16_t, int16_t>& updateDrawableCallback)
@@ -57,14 +38,7 @@ void ScrollList::setDrawables(DrawableListItemsInterface& drawableListItems, Gen
 
 void ScrollList::setWindowSize(int16_t items)
 {
-    if (itemSize > 0)
-    {
-        const int16_t widgetSize = getHorizontal() ? getWidth() : getHeight();
-        const int16_t activeWidgetSize = widgetSize - (distanceBeforeAlignedItem + paddingAfterLastItem);
-        const int16_t numberOfVisibleItems = (activeWidgetSize + itemSize / 2) / itemSize; // Round up
-        items = MIN(items, numberOfVisibleItems);                                          // No more than numberOfVisibleItems
-    }
-    windowSize = MAX(1, items); // No less than 1
+    windowSize = MAX(1, items);
     animateToPosition(keepOffsetInsideLimits(getOffset(), 0));
 }
 
@@ -110,8 +84,8 @@ int32_t ScrollList::getPositionForItem(int16_t itemIndex)
     }
     int32_t itemOffset = -itemIndex * itemSize;
     // Get the visible size
-    const int16_t widgetSize = getHorizontal() ? getWidth() : getHeight();
-    const int16_t activeWidgetSize = widgetSize - (distanceBeforeAlignedItem + paddingAfterLastItem);
+    int16_t widgetSize = getHorizontal() ? getWidth() : getHeight();
+    int16_t activeWidgetSize = widgetSize - (distanceBeforeAlignedItem + paddingAfterLastItem);
     if (list.getCircular())
     {
         int32_t offset = currentOffset;
@@ -151,7 +125,7 @@ int32_t ScrollList::getPositionForItem(int16_t itemIndex)
     {
         return itemOffset;
     }
-    const int16_t numberOfVisibleItems = activeWidgetSize / itemSize;
+    int16_t numberOfVisibleItems = activeWidgetSize / itemSize;
     int32_t itemOffsetAtEnd = itemOffset;
     if (numberOfVisibleItems > 0)
     {

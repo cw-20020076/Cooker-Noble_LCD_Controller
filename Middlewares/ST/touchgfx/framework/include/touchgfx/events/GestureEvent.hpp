@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -18,8 +18,8 @@
 #ifndef TOUCHGFX_GESTUREEVENT_HPP
 #define TOUCHGFX_GESTUREEVENT_HPP
 
-#include <touchgfx/Event.hpp>
 #include <touchgfx/hal/Types.hpp>
+#include <touchgfx/Event.hpp>
 
 namespace touchgfx
 {
@@ -54,16 +54,6 @@ public:
           gestureX(x),
           gestureY(y)
     {
-    }
-
-    /**
-     * Copy constructor.
-     *
-     * @param  gestureEvent The gesture event.
-     */
-    GestureEvent(const GestureEvent& gestureEvent)
-    {
-        *this = gestureEvent;
     }
 
     /**
@@ -111,25 +101,9 @@ public:
      *
      * @return The type of this event.
      */
-    virtual Event::EventType getEventType() const
+    virtual Event::EventType getEventType()
     {
         return Event::EVENT_GESTURE;
-    }
-
-    /**
-     * Assignment operator.
-     *
-     * @param  gestureEvent The gesture event.
-     *
-     * @return A shallow copy of this object.
-     */
-    const GestureEvent& operator=(const GestureEvent& gestureEvent)
-    {
-        gestureEventType = gestureEvent.gestureEventType;
-        gestureVelocity = gestureEvent.gestureVelocity;
-        gestureX = gestureEvent.gestureX;
-        gestureY = gestureEvent.gestureY;
-        return *this;
     }
 
 private:

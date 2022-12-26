@@ -4,21 +4,22 @@
 #ifndef TOUCHGFX_DIRECTFRAMEBUFFERVIDEOCONTROLLER_HPP
 #define TOUCHGFX_DIRECTFRAMEBUFFERVIDEOCONTROLLER_HPP
 
+#include <string.h>
 #include <touchgfx/widgets/VideoWidget.hpp>
 #include <simulator/video/MJPEGDecoder.hpp>
-#include <string.h>
 
 /**
  * Strategy:
  * Decode directly into the framebuffer in draw.
  * Tick will decide if we are going to a new frame.
  */
+
 template <uint32_t no_streams, touchgfx::Bitmap::BitmapFormat output_format>
 class DirectFrameBufferVideoController : public touchgfx::VideoController
 {
 public:
     DirectFrameBufferVideoController()
-        : VideoController(), allowSkipFrames(true)
+        : VideoController()
     {
         assert((no_streams > 0) && "Video: Number of streams zero!");
 
@@ -103,7 +104,6 @@ public:
             if (mjpegDecoders[handle]->hasVideo())
             {
                 stream.isPlaying = true;
-                stream.isShowingOneFrame = false;
                 // Reset counters
                 stream.frameCount = 0;
                 stream.tickCount = 0;
@@ -120,7 +120,6 @@ public:
             break;
         case PAUSE:
             stream.isPlaying = false;
-            stream.isShowingOneFrame = false;
             break;
         case SEEK:
             stream.seek_to_frame = param;
@@ -128,17 +127,8 @@ public:
             stream.frameCount = 0;
             stream.tickCount = 0;
             break;
-        case SHOW:
-            stream.seek_to_frame = param;
-            stream.isShowingOneFrame = true;
-            stream.doDecodeNextFrame = true;
-            // Reset counters
-            stream.frameCount = 0;
-            stream.tickCount = 0;
-            break;
         case STOP:
             stream.isPlaying = false;
-            stream.isShowingOneFrame = false;
             stream.seek_to_frame = 1;
             // Reset counters
             stream.frameCount = 0;
@@ -157,13 +147,10 @@ public:
 
         bool hasMoreFrames = true;
 
-        if (stream.isPlaying || stream.isShowingOneFrame)
+        if (stream.isPlaying)
         {
             // Increase tickCount
-            stream.tickCount+=HAL::getInstance()->getLCDRefreshCount();
-
-            // Lower flag
-            stream.isShowingOneFrame = false;
+            stream.tickCount++;
 
             if (stream.doDecodeNextFrame)
             {
@@ -179,12 +166,6 @@ public:
                 }
                 else
                 {
-                    if (stream.skip_frames > 0)
-                    {
-                        decoder->gotoFrame(decoder->getCurrentFrameNumber() + stream.skip_frames);
-                        stream.frameCount += stream.skip_frames;
-                        stream.skip_frames = 0;
-                    }
                     if (stream.repeat)
                     {
                         hasMoreFrames = decoder->gotoNextFrame();
@@ -264,11 +245,6 @@ public:
         return stream.isPlaying;
     }
 
-    void setFrameRateCompensation(const bool allow)
-    {
-        allowSkipFrames = allow;
-    }
-
 private:
     class Stream
     {
@@ -277,46 +253,33 @@ private:
             : frameCount(0), frameNumber(0), tickCount(0),
               frame_rate_video(0), frame_rate_ticks(0),
               seek_to_frame(0),
-              isActive(false), isPlaying(false), isShowingOneFrame(false), repeat(true),
+              isActive(false), isPlaying(false), repeat(true),
               doDecodeNextFrame(false)
         {
         }
         uint32_t frameCount;       // Video frames decoded since play
         uint32_t frameNumber;      // Video frame showed number
         uint32_t tickCount;        // UI frames since play
-        uint32_t frame_rate_video; // Ratio of frames wanted counter
-        uint32_t frame_rate_ticks; // Ratio of frames wanted divider
+        uint32_t frame_rate_video; // Ratio of frames wanted divider
+        uint32_t frame_rate_ticks; // Ratio of frames wanted counter
         uint32_t seek_to_frame;    // Requested next frame number
-        uint32_t skip_frames;      // Number of frames to skip to keep frame rate
         bool isActive;
         bool isPlaying;
-        bool isShowingOneFrame;
         bool repeat;
         bool doDecodeNextFrame; // High if we should go to next frame in next tick
     };
 
     MJPEGDecoder* mjpegDecoders[no_streams];
     Stream streams[no_streams];
-    bool allowSkipFrames;
 
     /**
      * Return true, if new video frame should be decoded for the next tick (keep video decode framerate low)
      */
-    bool decodeForNextTick(Stream& stream)
+    bool decodeForNextTick(const Stream& stream)
     {
-        // Running in UI thread
-
         // Compare tickCount/frameNumber to frame_rate_ticks/frame_rate_video
         if ((stream.tickCount * stream.frame_rate_video) > (stream.frame_rate_ticks * stream.frameCount))
         {
-            if (allowSkipFrames)
-            {
-                stream.skip_frames = (stream.tickCount * stream.frame_rate_video - stream.frame_rate_ticks * stream.frameCount) / stream.frame_rate_ticks;
-                if (stream.skip_frames > 0)
-                {
-                    stream.skip_frames--;
-                }
-            }
             return true;
         }
         return false;

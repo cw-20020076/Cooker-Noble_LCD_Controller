@@ -12,11 +12,11 @@ touchgfx::Font* ApplicationFontProvider::getFont(touchgfx::FontId typography)
     case Typography::DISPLAY:
         // RobotoCondensed_Regular_28_4bpp
         return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[0]);
-    case Typography::MODE:
-        // RobotoCondensed_Regular_24_4bpp
-        return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[1]);
     case Typography::KEYBOARD:
         // RobotoCondensed_Regular_20_4bpp
+        return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[1]);
+    case Typography::MODE:
+        // RobotoCondensed_Regular_24_4bpp
         return const_cast<touchgfx::Font*>(TypedTextDatabase::getFonts()[2]);
     default:
         return 0;

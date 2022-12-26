@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -10,8 +10,11 @@
 *
 *******************************************************************************/
 
+#include <touchgfx/hal/Types.hpp>
+#include <touchgfx/Drawable.hpp>
 #include <touchgfx/containers/Container.hpp>
 #include <touchgfx/hal/HAL.hpp>
+#include "touchgfx/Utils.hpp"
 
 namespace touchgfx
 {
@@ -238,13 +241,13 @@ void Container::getLastChildNear(int16_t x, int16_t y, Drawable** last, int16_t*
 
 Rect Container::getSolidRect() const
 {
-    return Rect();
+    return Rect(0, 0, 0, 0);
 }
 
 Rect Container::getContainedArea() const
 {
     Drawable* d = firstChild;
-    Rect contained;
+    Rect contained(0, 0, 0, 0);
     while (d)
     {
         contained.expandToFit(d->getRect());
@@ -269,16 +272,6 @@ void Container::forEachChild(GenericCallback<Drawable&>* function)
     while (d)
     {
         function->execute(*d);
-        d = d->nextSibling;
-    }
-}
-
-void Container::invalidateContent() const
-{
-    Drawable* d = firstChild;
-    while (d)
-    {
-        d->invalidateContent();
         d = d->nextSibling;
     }
 }

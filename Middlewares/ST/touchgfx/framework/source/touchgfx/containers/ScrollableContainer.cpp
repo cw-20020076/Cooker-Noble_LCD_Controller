@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -10,12 +10,17 @@
 *
 *******************************************************************************/
 
+#include <touchgfx/hal/Types.hpp>
 #include <touchgfx/Application.hpp>
 #include <touchgfx/Color.hpp>
 #include <touchgfx/Drawable.hpp>
 #include <touchgfx/EasingEquations.hpp>
 #include <touchgfx/Utils.hpp>
+#include <touchgfx/containers/Container.hpp>
 #include <touchgfx/containers/ScrollableContainer.hpp>
+#include <touchgfx/events/ClickEvent.hpp>
+#include <touchgfx/events/DragEvent.hpp>
+#include <touchgfx/events/GestureEvent.hpp>
 
 namespace touchgfx
 {
@@ -24,7 +29,7 @@ ScrollableContainer::ScrollableContainer()
       scrollbarPadding(0),
       scrollbarWidth(2),
       scrollbarAlpha(120),
-      scrollbarColor(Color::getColorFromRGB(0xFF, 0xFF, 0xFF)),
+      scrollbarColor(Color::getColorFrom24BitRGB(0xFF, 0xFF, 0xFF)),
       maxVelocity(SCROLLBAR_MAX_VELOCITY),
       accelDirection(GestureEvent::SWIPE_HORIZONTAL),
       xSlider(0, 0, scrollbarColor, scrollbarAlpha),
@@ -286,8 +291,7 @@ void ScrollableContainer::handleGestureEvent(const GestureEvent& event)
         // Try to set some reasonable values for how long the resulting scroll should be, and how many ticks is should take
         scrollDuration = velocityAbsolute * scrollDurationSpeedup / scrollDurationSlowdown;
         targetValue = ((event.getVelocity() > 0) ? 1 : -1) * (velocityAbsolute - 4) * 72;
-        const int16_t distance = abs(targetValue);
-        scrollDuration = MIN(scrollDuration, distance);
+        scrollDuration = MIN(scrollDuration, abs(targetValue));
 
         // Get ready to animate scroll: Initialize values
         beginningValue = (event.getType() == GestureEvent::SWIPE_VERTICAL) ? getContainedArea().y : getContainedArea().x;
@@ -306,7 +310,7 @@ void ScrollableContainer::handleGestureEvent(const GestureEvent& event)
 
 Rect ScrollableContainer::getXScrollbar() const
 {
-    Rect res;
+    Rect res(0, 0, 0, 0);
     if (scrollableX)
     {
         Rect contained = getContainedArea();
@@ -316,7 +320,7 @@ Rect ScrollableContainer::getXScrollbar() const
         {
             int leftPadding = (-1 * contained.x * rect.width) / contained.width;
             int rightPadding = ((contained.right() - rect.width) * rect.width) / contained.width;
-            const int startWidth = rect.width - (2 * scrollbarPadding + 2 * SCROLLBAR_LINE + scrollSpace);
+            const int startWidth = rect.width - 2 * scrollbarPadding - 2 * SCROLLBAR_LINE - scrollSpace;
             int width = startWidth;
             width -= (leftPadding + rightPadding);
             if (width < scrollbarWidth * 2)
@@ -327,7 +331,7 @@ Rect ScrollableContainer::getXScrollbar() const
                 // Distribute the deviation error based on current scrollbar X position (the amount subtracted from scrollbar xpos increases gradually).
                 leftPadding -= (diff * leftPadding) / startWidth;
             }
-            res = Rect(leftPadding + scrollbarPadding + SCROLLBAR_LINE, rect.height - (scrollbarWidth + scrollbarPadding + SCROLLBAR_LINE), width, scrollbarWidth);
+            res = Rect(leftPadding + scrollbarPadding + SCROLLBAR_LINE, rect.height - scrollbarWidth - scrollbarPadding - SCROLLBAR_LINE, width, scrollbarWidth);
         }
     }
     return res;
@@ -335,7 +339,7 @@ Rect ScrollableContainer::getXScrollbar() const
 
 Rect ScrollableContainer::getYScrollbar() const
 {
-    Rect res;
+    Rect res(0, 0, 0, 0);
     if (scrollableY)
     {
         Rect contained = getContainedArea();
@@ -345,7 +349,7 @@ Rect ScrollableContainer::getYScrollbar() const
         {
             int topPadding = (-1 * contained.y * rect.height) / contained.height;
             int bottomPadding = ((contained.bottom() - rect.height) * rect.height) / contained.height;
-            const int startHeight = rect.height - (2 * scrollbarPadding + 2 * SCROLLBAR_LINE + scrollSpace);
+            const int startHeight = rect.height - 2 * scrollbarPadding - 2 * SCROLLBAR_LINE - scrollSpace;
             int height = startHeight;
             height -= (topPadding + bottomPadding);
             if (height < scrollbarWidth * 2)
@@ -356,7 +360,7 @@ Rect ScrollableContainer::getYScrollbar() const
                 // Distribute the deviation error based on current scrollbar Y position (the amount subtracted from scrollbar ypos increases gradually).
                 topPadding -= (diff * topPadding) / startHeight;
             }
-            res = Rect(rect.width - (scrollbarWidth + scrollbarPadding + 2 * SCROLLBAR_LINE), topPadding + scrollbarPadding + SCROLLBAR_LINE, scrollbarWidth, height);
+            res = Rect(rect.width - scrollbarWidth - scrollbarPadding - 2 * SCROLLBAR_LINE, topPadding + scrollbarPadding + SCROLLBAR_LINE, scrollbarWidth, height);
         }
     }
     return res;
@@ -364,22 +368,22 @@ Rect ScrollableContainer::getYScrollbar() const
 
 Rect ScrollableContainer::getXBorder(const Rect& xBar, const Rect& yBar) const
 {
-    Rect border;
+    Rect border(0, 0, 0, 0);
     if (!xBar.isEmpty())
     {
         const int scrollSpace = (!yBar.isEmpty()) ? (2 * scrollbarPadding + scrollbarWidth + SCROLLBAR_LINE) : 0;
-        border = Rect(scrollbarPadding, xBar.y - SCROLLBAR_LINE, rect.width - (2 * scrollbarPadding + scrollSpace), scrollbarWidth + 2 * SCROLLBAR_LINE);
+        border = Rect(scrollbarPadding, xBar.y - SCROLLBAR_LINE, rect.width - 2 * scrollbarPadding - scrollSpace, scrollbarWidth + 2 * SCROLLBAR_LINE);
     }
     return border;
 }
 
 Rect ScrollableContainer::getYBorder(const Rect& xBar, const Rect& yBar) const
 {
-    Rect border;
+    Rect border(0, 0, 0, 0);
     if (!yBar.isEmpty())
     {
         const int scrollSpace = (!xBar.isEmpty()) ? (2 * scrollbarPadding + scrollbarWidth + SCROLLBAR_LINE) : 0;
-        border = Rect(yBar.x - SCROLLBAR_LINE, scrollbarPadding, scrollbarWidth + 2 * SCROLLBAR_LINE, rect.height - (2 * scrollbarPadding + scrollSpace));
+        border = Rect(yBar.x - SCROLLBAR_LINE, scrollbarPadding, scrollbarWidth + 2 * SCROLLBAR_LINE, rect.height - 2 * scrollbarPadding - scrollSpace);
     }
     return border;
 }
@@ -392,7 +396,7 @@ void ScrollableContainer::invalidateScrollbars()
     Rect xBorder = getXBorder(xBar, yBar);
     Rect yBorder = getYBorder(xBar, yBar);
 
-    // The two if statements ensure that the two sliders are invalidated thereby hides them, before they are set to size zero.
+    // The two if statements ensure that the two sliders is invalidates thereby hides them, before they are set to size zero.
     if (xSlider.getY() > xBorder.y)
     {
         xSlider.invalidate();
@@ -546,7 +550,7 @@ Rect ScrollableContainer::getContainedArea() const
 
 Rect ScrollableContainer::getChildrenContainedArea() const
 {
-    Rect contained;
+    Rect contained(0, 0, 0, 0);
     for (Drawable* d = firstChild; d; d = d->getNextSibling())
     {
         if ((d != &xSlider) && (d != &ySlider) && (d->isVisible()))

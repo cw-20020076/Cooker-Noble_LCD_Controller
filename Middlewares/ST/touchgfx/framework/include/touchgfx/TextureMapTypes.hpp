@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -136,9 +136,9 @@ struct Edge
  *
  * @return The value as float.
  */
-FORCE_INLINE_FUNCTION float fixed28_4ToFloat(fixed28_4 value)
+inline float fixed28_4ToFloat(fixed28_4 value)
 {
-    return (float)value / 16.0f;
+    return value / 16.0f;
 }
 
 /**
@@ -148,7 +148,7 @@ FORCE_INLINE_FUNCTION float fixed28_4ToFloat(fixed28_4 value)
  *
  * @return The value as fixed28_4.
  */
-FORCE_INLINE_FUNCTION fixed28_4 floatToFixed28_4(float value)
+inline fixed28_4 floatToFixed28_4(float value)
 {
     return (fixed28_4)(value * 16);
 }
@@ -160,7 +160,7 @@ FORCE_INLINE_FUNCTION fixed28_4 floatToFixed28_4(float value)
  *
  * @return The value as fixed16_16.
  */
-FORCE_INLINE_FUNCTION fixed16_16 floatToFixed16_16(float value)
+inline fixed16_16 floatToFixed16_16(float value)
 {
     return (fixed16_16)(value * 65536);
 }
@@ -173,7 +173,7 @@ FORCE_INLINE_FUNCTION fixed16_16 floatToFixed16_16(float value)
  *
  * @return the result.
  */
-FORCE_INLINE_FUNCTION fixed28_4 fixed28_4Mul(fixed28_4 a, fixed28_4 b)
+inline fixed28_4 fixed28_4Mul(fixed28_4 a, fixed28_4 b)
 {
     if (a == 0 || b == 0)
     {
@@ -217,7 +217,7 @@ FORCE_INLINE_FUNCTION fixed28_4 fixed28_4Mul(fixed28_4 a, fixed28_4 b)
  *
  * @return The ceil result.
  */
-FORCE_INLINE_FUNCTION int32_t ceil28_4(fixed28_4 value)
+inline int32_t ceil28_4(fixed28_4 value)
 {
     int32_t returnValue;
     int32_t numerator = value - 1 + 16;
@@ -242,7 +242,7 @@ FORCE_INLINE_FUNCTION int32_t ceil28_4(fixed28_4 value)
  * @param [out] floor       numerator/denominator.
  * @param [out] mod         numerator\%denominator.
  */
-FORCE_INLINE_FUNCTION void floorDivMod(int32_t numerator, int32_t denominator, int32_t& floor, int32_t& mod)
+inline void floorDivMod(int32_t numerator, int32_t denominator, int32_t& floor, int32_t& mod)
 {
     assert(denominator > 0); // We assume it's positive
     if (numerator >= 0)

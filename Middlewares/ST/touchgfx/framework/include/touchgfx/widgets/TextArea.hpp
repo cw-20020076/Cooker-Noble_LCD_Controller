@@ -1,8 +1,8 @@
 /******************************************************************************
-* Copyright (c) 2018(-2022) STMicroelectronics.
+* Copyright (c) 2018(-2021) STMicroelectronics.
 * All rights reserved.
 *
-* This file is part of the TouchGFX 4.20.0 distribution.
+* This file is part of the TouchGFX 4.18.1 distribution.
 *
 * This software is licensed under terms that can be found in the LICENSE file in
 * the root directory of this software component.
@@ -18,11 +18,10 @@
 #ifndef TOUCHGFX_TEXTAREA_HPP
 #define TOUCHGFX_TEXTAREA_HPP
 
+#include <touchgfx/hal/Types.hpp>
 #include <touchgfx/Font.hpp>
-#include <touchgfx/TextProvider.hpp>
 #include <touchgfx/TypedText.hpp>
 #include <touchgfx/Unicode.hpp>
-#include <touchgfx/hal/Types.hpp>
 #include <touchgfx/widgets/Widget.hpp>
 
 namespace touchgfx
@@ -41,35 +40,23 @@ class TextArea : public Widget
 {
 public:
     TextArea()
-        : Widget(), typedText(TYPED_TEXT_INVALID), color(0), linespace(0), alpha(255), indentation(0), rotation(TEXT_ROTATE_0), wideTextAction(WIDE_TEXT_NONE), boundingArea()
+        : Widget(), typedText(TYPED_TEXT_INVALID), color(0), linespace(0), alpha(255), indentation(0), rotation(TEXT_ROTATE_0), wideTextAction(WIDE_TEXT_NONE)
     {
-    }
-
-    virtual void setWidth(int16_t width)
-    {
-        Widget::setWidth(width);
-        boundingArea = calculateBoundingArea();
-    }
-
-    virtual void setHeight(int16_t height)
-    {
-        Widget::setHeight(height);
-        boundingArea = calculateBoundingArea();
     }
 
     virtual Rect getSolidRect() const
     {
-        return Rect();
+        return Rect(0, 0, 0, 0);
     }
 
     /**
      * Sets the color of the text. If no color is set, the default color (black) is used.
      *
-     * @param  newColor The color to use.
+     * @param  color The color to use.
      */
-    FORCE_INLINE_FUNCTION void setColor(colortype newColor)
+    FORCE_INLINE_FUNCTION void setColor(colortype color)
     {
-        color = newColor;
+        this->color = color;
     }
 
     /**
@@ -86,7 +73,7 @@ public:
     /**
      * @copydoc Image::setAlpha
      */
-    virtual void setAlpha(uint8_t newAlpha)
+    void setAlpha(uint8_t newAlpha)
     {
         alpha = newAlpha;
     }
@@ -142,7 +129,6 @@ public:
     FORCE_INLINE_FUNCTION void setLinespacing(int16_t space)
     {
         linespace = space;
-        boundingArea = calculateBoundingArea();
     }
 
     /**
@@ -187,7 +173,6 @@ public:
     FORCE_INLINE_FUNCTION void setIndentation(uint8_t indent)
     {
         indentation = indent;
-        boundingArea = calculateBoundingArea();
     }
 
     /**
@@ -203,20 +188,12 @@ public:
     }
 
     /**
-     * Gets the alignment of text inside the TextArea.
-     *
-     * @return The alignment.
-     *
-     */
-    virtual Alignment getAlignment() const;
-
-    /**
      * Gets the total height needed by the text, taking number of lines and line spacing
      * into consideration.
      *
      * @return the total height needed by the text.
      */
-    virtual int16_t getTextHeight() const;
+    virtual int16_t getTextHeight();
 
     /**
      * Gets the width in pixels of the current associated text in the current selected
@@ -243,7 +220,7 @@ public:
      *
      * @return The currently used TypedText.
      */
-    const TypedText& getTypedText() const
+    TypedText getTypedText() const
     {
         return typedText;
     }
@@ -254,12 +231,11 @@ public:
      * from the top of the display and down. Similarly TEXT_ROTATE_180 and TEXT_ROTATE_270
      * will each rotate the text further 90 degrees clockwise.
      *
-     * @param  textRotation The rotation of the text.
+     * @param  rotation The rotation of the text.
      */
-    FORCE_INLINE_FUNCTION void setRotation(const TextRotation textRotation)
+    void setRotation(const TextRotation rotation)
     {
-        rotation = textRotation;
-        boundingArea = calculateBoundingArea();
+        this->rotation = rotation;
     }
 
     /**
@@ -351,10 +327,9 @@ public:
      *
      * @see WideTextAction, getWideTextAction, resizeHeightToCurrentText
      */
-    FORCE_INLINE_FUNCTION void setWideTextAction(WideTextAction action)
+    void setWideTextAction(WideTextAction action)
     {
         wideTextAction = action;
-        boundingArea = calculateBoundingArea();
     }
 
     /**
@@ -381,102 +356,14 @@ public:
      */
     virtual int16_t calculateTextHeight(const Unicode::UnicodeChar* format, ...) const;
 
-    /**
-     * Gets the first wildcard used in the TypedText.
-     *
-     * @return A pointer to the first wildcard, if this text area has a wildcard, otherwise 0.
-     *
-     * @see TextAreaWithOneWildcard, TextAreaWithTwoWildcards
-     */
-    virtual const Unicode::UnicodeChar* getWildcard1() const
-    {
-        return 0;
-    }
-
-    /**
-     * Gets the second wildcard used in the TypedText.
-     *
-     * @return A pointer to the second wildcard, if this text area has two wildcards, otherwise 0.
-     *
-     * @see TextAreaWithOneWildcard, TextAreaWithTwoWildcards
-     */
-    virtual const Unicode::UnicodeChar* getWildcard2() const
-    {
-        return 0;
-    }
-
-    virtual void invalidateContent() const;
-
 protected:
-    /** Structure for the relationship between a bounding rectangle and the contained text. */
-    class BoundingArea
-    {
-    public:
-        /**
-         * Initializes a new instance of the BoundingArea class.
-         *
-         * @param  boundingRect  The bounding rectangle of this text area.
-         * @param  containedText  A pointer to the text contained in the bounding rectangle.
-         */
-        BoundingArea(const Rect& boundingRect, const Unicode::UnicodeChar* containedText)
-            : rect(boundingRect), text(containedText)
-        {
-        }
-
-        /**
-         * Initializes a new instance of the BoundingArea class which is invalid by default.
-         */
-        BoundingArea()
-            : rect(Rect(0, 0, -1, -1)), // Negative width and height means invalid rectangle
-              text(0)
-        {
-        }
-
-        /**
-         * Gets bounding rectangle.
-         *
-         * @return The bounding rectangle.
-         */
-        Rect getRect() const
-        {
-            return rect;
-        }
-
-        /**
-         * Query if the bounding area is valid.
-         *
-         * @param  currentText  A pointer to the current text of this text area.
-         *
-         * @return True if valid otherwise false.
-         */
-        bool isValid(const Unicode::UnicodeChar* currentText) const
-        {
-            return (rect.height >= 0 && rect.width >= 0 && text == currentText);
-        }
-
-    private:
-        Rect rect;
-        const Unicode::UnicodeChar* text;
-    };
-
-    /**
-     * Calculates the minimum bounding rectangle of this text area and correlates it
-     * with the containing text, to get the bounding area.
-     * Note: The bounding rectangle is adjusted according to alignment and rotation.
-     *
-     * @return The bounding area.
-     */
-    virtual TextArea::BoundingArea calculateBoundingArea() const;
-
-    TypedText typedText;                ///< The TypedText to display
-    colortype color;                    ///< The color to use for the text.
-    int16_t linespace;                  ///< The extra space between lines of text, measured in pixels.
-    uint8_t alpha;                      ///< The alpha to use.
-    uint8_t indentation;                ///< The indentation of the text inside the text area.
-    TextRotation rotation;              ///< The text rotation to use in steps of 90 degrees.
-    WideTextAction wideTextAction;      ///< What to do if the lines of text are wider than the text area.
-    static const uint16_t newLine = 10; ///< NewLine value.
-    BoundingArea boundingArea;          ///< Bounding area of this text area.
+    TypedText typedText;           ///< The TypedText to display
+    colortype color;               ///< The color to use for the text.
+    int16_t linespace;             ///< The extra space between lines of text, measured in pixels.
+    uint8_t alpha;                 ///< The alpha to use.
+    uint8_t indentation;           ///< The indentation of the text inside the text area.
+    TextRotation rotation;         ///< The text rotation to use in steps of 90 degrees.
+    WideTextAction wideTextAction; ///< What to do if the lines of text are wider than the text area.
 };
 
 } // namespace touchgfx
